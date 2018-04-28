@@ -1,0 +1,40 @@
+<resources>
+    <string name="app_name">MediaEscolar</string>
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+    <string name="nav_header_title">Menu Média Escolar</string>
+    <string name="nav_header_subtitle">andre@topartes.com</string>
+    <string name="nav_header_desc">Navigation header</string>
+    <string name="action_sair">Sair</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="modelo_fragmento">Fragmento modelo</string>
+    <string name="prim_bimestre">1º Bimenstre</string>
+    <string name="seg_bimestre">2º Bimenstre</string>
+    <string name="terc_bimestre">3º Bimenstre</string>
+    <string name="quart_bimestre">4º Bimenstre</string>
+    <string name="calcularMedia">Calcular Média</string>
+    <string name="result_final">Resultado FInal</string>
+    <string name="btnCalcular">Calcular</string>
+    <string name="btnGravar">Gravar Média</string>
+    <string name="txtLogo">Imagem Lista</string>
+
+    <string name="modelo_fragment">Fragmento Modelo</string>
+    <string name="modelo_bimestre_a">1º Bimestre</string>
+    <string name="modelo_bimestre_b">2º Bimestre</string>
+    <string name="modelo_bimestre_c">3º Bimestre</string>
+    <string name="modelo_bimestre_d">4º Bimestre</string>
+    <string name="modelo_resultado_final">Resultado Final</string>
+    <string name="txtResultado">Matemática Aprovado</string>
+    <string name="bimestre">1º Bimestre</string>
+    <string name="txtEditar">Editar</string>
+    <string name="txtDeletar">Deletar</string>
+    <string name="materia">Matéria</string>
+    <string name="notaTrabalho">Nota do Trabalho</string>
+    <string name="media">Média</string>
+    <string name="situacao">Situação</string>
+    <string name="notaProva">Nota Prova</string>
+    <string name="txtSalvar">Salvar</string>
+    <string name="txtConsultar">Consultar</string>
+
+</resources>

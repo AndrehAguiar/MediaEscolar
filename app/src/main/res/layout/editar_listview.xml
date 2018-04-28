@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="20dp"
+    app:layout_behavior="@string/appbar_scrolling_view_behavior"
+    tools:context=".view.MainActivity"
+    tools:showIn="@layout/activity_main">
+
+    <TextView
+        android:id="@+id/txtMateria"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/materia" />
+
+    <EditText
+        android:id="@+id/edMateria"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:inputType="textPersonName" />
+
+    <TextView
+        android:id="@+id/txtNotaProva"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/notaProva" />
+
+    <EditText
+        android:id="@+id/edNotaProva"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:inputType="numberDecimal"
+        android:text="" />
+
+    <TextView
+        android:id="@+id/txtNotaTrabalho"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/notaTrabalho" />
+
+    <EditText
+        android:id="@+id/edNotaTrabalho"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:inputType="numberDecimal"
+        android:text=""/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <TextView
+            android:id="@+id/txtMedia"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/media" />
+
+        <TextView
+            android:id="@+id/txtSituacaoFinal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="5dp"
+            />
+
+        <TextView
+            android:id="@+id/txtSituacao"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="100dp"
+            android:text="@string/situacao" />
+
+        <TextView
+            android:id="@+id/txtResultado"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="5dp"
+            />
+    </LinearLayout>
+
+</LinearLayout>

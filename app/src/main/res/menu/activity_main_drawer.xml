@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:showIn="navigation_view">
+
+    <item android:title="@string/calcularMedia">
+        <menu>
+            <item
+                android:id="@+id/prim_bimestre"
+                android:icon="@drawable/ic_menu_calcular"
+                android:title="@string/prim_bimestre" />
+            <item
+                android:id="@+id/seg_bimestre"
+                android:icon="@drawable/ic_menu_calcular"
+                android:title="@string/seg_bimestre" />
+            <item
+                android:id="@+id/terc_bimestre"
+                android:icon="@drawable/ic_menu_calcular"
+                android:title="@string/terc_bimestre" />
+            <item
+                android:id="@+id/quart_bimestre"
+                android:icon="@drawable/ic_menu_calcular"
+                android:title="@string/quart_bimestre" />
+        </menu>
+    </item>
+
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/result_final"
+            android:icon="@drawable/ic_menu_resultado"
+            android:title="@string/result_final" />
+    </group>
+
+</menu>
