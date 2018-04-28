@@ -3,6 +3,7 @@ package com.topartes.mediaescolar.fragments;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -53,7 +54,7 @@ public class BimestreDFragment extends Fragment {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         view = inflater.inflate(R.layout.fragment_bimestre_d, container, false);
@@ -64,7 +65,7 @@ public class BimestreDFragment extends Fragment {
         editNotaProva = view.findViewById(R.id.edNotaProva);
         editNotaTrabalho = view.findViewById(R.id.edNotaTrabalho);
 
-        btnGravar = view.findViewById(R.id.btnGravar);
+        //btnGravar = view.findViewById(R.id.btnGravar);
         btnCalcular = view.findViewById(R.id.btnCalcular);
 
         txtSituacaoFinal = view.findViewById(R.id.txtSituacaoFinal);
