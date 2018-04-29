@@ -82,7 +82,6 @@ public class MediaEscolarCtrl extends DataSource{
         return getAllResultadoFinal();
     }
 
-
     public Integer idSelectMediaEscolar(Integer id){
 
         MediaEscolar mediaEscolar = null;
@@ -92,6 +91,10 @@ public class MediaEscolarCtrl extends DataSource{
         String sql = "SELECT id FROM MediaEscolarDataModel.getTABELA() WHERE id = "+id;
 
         return id;
+    }
+
+    public boolean validaNotas(Double nota){
+        return nota > 10;
     }
 
 }

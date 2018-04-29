@@ -1,6 +1,10 @@
 package com.topartes.mediaescolar.view;
 
 
+import android.app.ProgressDialog;
+import android.content.Context;
+import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
@@ -11,42 +15,68 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
 import com.topartes.mediaescolar.R;
+import com.topartes.mediaescolar.controller.MediaEscolarCtrl;
+import com.topartes.mediaescolar.datamodel.MediaEscolarDataModel;
 import com.topartes.mediaescolar.fragments.BimestreAFragment;
 import com.topartes.mediaescolar.fragments.BimestreBFragment;
 import com.topartes.mediaescolar.fragments.BimestreCFragment;
 import com.topartes.mediaescolar.fragments.BimestreDFragment;
 import com.topartes.mediaescolar.fragments.ModeloFragment;
 import com.topartes.mediaescolar.fragments.ResultadoFinalFragment;
+import com.topartes.mediaescolar.model.MediaEscolar;
+import com.topartes.mediaescolar.util.UtilMediaEscolar;
 
-import java.text.DecimalFormat;
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
     FragmentManager fragmentManager;
+    MediaEscolarCtrl controller;
+    Context context;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+        context = getBaseContext();
+        controller = new MediaEscolarCtrl(context);
 
         fragmentManager = getSupportFragmentManager();
 
         fragmentManager.beginTransaction().replace(R.id.content_fragment, new ModeloFragment()).commit();
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        FloatingActionButton fab = findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
+                Snackbar.make(view, "Sincronizando os dados", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
+
+                // TODO: Criar class AsyncTask
+                SincronizarSistema task = new SincronizarSistema();
+                task.execute();
             }
         });
 
@@ -128,8 +158,161 @@ public class MainActivity extends AppCompatActivity
         return true;
     }
 
-    public static String formataValorDecimal(Double valor) {
-        DecimalFormat df = new DecimalFormat("#,###,##0.00");
-        return df.format(valor);
+    private class SincronizarSistema extends AsyncTask<String, String, String>{
+
+        ProgressDialog progressDiaglog = new ProgressDialog(MainActivity.this);
+
+        HttpURLConnection conn;
+        URL url = null;
+
+        Uri.Builder builder;
+
+        public SincronizarSistema(){
+
+            this.builder = new Uri.Builder();
+
+            // "app" nome do dispositivo autrizado
+            // "MediaEscolar" key da aplicação permitida
+            // A key deve ser criptografada para manter a segurança
+
+            builder.appendQueryParameter("app", "MediaEscolar");
+
+        }
+
+        @Override
+        protected void onPreExecute(){
+
+            progressDiaglog.setMessage("Os dados estão sendo atualizado, por favor aguarde...");
+            progressDiaglog.setCancelable(false);
+            progressDiaglog.show();
+
+        }
+
+        @Override
+        protected String doInBackground(String... strings) {
+
+            // Monta URL com script PHP
+            try{
+
+                url = new URL(UtilMediaEscolar.URL_WEB_SERVICE+"APISincronizarSistema.php");
+
+            }catch (MalformedURLException e){
+
+                Log.e("WEBService", "MalformedURLException - "+e.getMessage());
+
+            }catch (Exception e){
+
+                Log.e("WEBService", "Exception - "+e.getMessage());
+            }
+
+            try{
+
+                conn = (HttpURLConnection) url.openConnection();
+                conn.setConnectTimeout(UtilMediaEscolar.CONECTION_TIMEOUT);
+                conn.setReadTimeout(UtilMediaEscolar.READ_TIME_OUT);
+                conn.setRequestMethod("POST");
+                conn.setRequestProperty("charset","utf-8");
+
+                conn.setDoInput(true);
+                conn.setDoOutput(true);
+
+                String query = builder.build().getEncodedQuery();
+
+                OutputStream os = conn.getOutputStream();
+                BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(os, "UTF-8"));
+
+                writer.write(query);
+                writer.flush();
+                writer.close();
+                os.close();
+
+                conn.connect();
+
+            }catch (IOException e){
+
+                Log.e("WEBService", "IOException - "+e.getMessage());
+
+            }
+
+            try{
+                int response_code = conn.getResponseCode();
+
+                /* Lista de ResponseCodes comuns
+                * 200 OK
+                * 403 forbideen
+                * 404 pg não encontrada
+                * 500 erro interno no servidor */
+
+                if(response_code == HttpURLConnection.HTTP_OK){
+                    InputStream input = conn.getInputStream();
+                    BufferedReader reader = new BufferedReader(new InputStreamReader(input));
+
+                    StringBuilder result = new StringBuilder();
+                    String line;
+                    while ((line = reader.readLine()) != null){
+                        result.append(line);
+                    }
+
+                    return (result.toString());
+                }else{
+                    return "Erro de conexão";
+                }
+
+            }catch (IOException e){
+
+                Log.e("WEBService", "IOException - "+e.getMessage());
+                return e.toString();
+
+            }finally {
+                conn.disconnect();
+            }
+        }
+
+        @Override
+        protected void onPostExecute(String result){
+
+            try{
+
+                JSONArray jArray = new JSONArray(result);
+
+                if(jArray.length() != 0){
+                    // Salvar dados recebidos no BD SQLite
+
+                    controller.deletarTabela(MediaEscolarDataModel.getTABELA());
+                    controller.criarTabela(MediaEscolarDataModel.criarTabela());
+
+                    for (int i = 0; i< jArray.length(); i++){
+
+                        JSONObject jsonObject = jArray.getJSONObject(i);
+                        MediaEscolar obj = new MediaEscolar();
+
+                        obj.setId((jsonObject.getInt(MediaEscolarDataModel.getId())));
+                        obj.setMateria((jsonObject.getString(MediaEscolarDataModel.getMateria())));
+                        obj.setBimestre((jsonObject.getString(MediaEscolarDataModel.getBimestre())));
+                        obj.setNotaProva((jsonObject.getDouble(MediaEscolarDataModel.getNotaProva())));
+                        obj.setNotaTrabalho((jsonObject.getDouble(MediaEscolarDataModel.getNotaMateria())));
+                        obj.setMediaFinal((jsonObject.getDouble(MediaEscolarDataModel.getMediaFinal())));
+                        obj.setSituacao((jsonObject.getString(MediaEscolarDataModel.getSituacao())));
+
+                        controller.salvar(obj);
+
+                    }
+                }else{
+                    UtilMediaEscolar.showMensagem(context, "Nenhum registro encontrado...");
+                }
+
+            }catch (Exception e){
+
+                Log.e("WEBService", "Erro JSONException - "+e.getMessage());
+
+            }finally {
+
+                if (progressDiaglog != null && progressDiaglog.isShowing()){
+                    progressDiaglog.dismiss();
+                }
+
+            }
+        }
+
     }
 }
