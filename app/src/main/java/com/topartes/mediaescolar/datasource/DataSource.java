@@ -3,16 +3,20 @@ package com.topartes.mediaescolar.datasource;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
+import android.database.sqlite.SQLiteCantOpenDatabaseException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.os.Environment;
 import android.util.Log;
-import android.widget.Toast;
 
-import com.topartes.mediaescolar.adapter.ResultadoFinalListAdapter;
-import com.topartes.mediaescolar.controller.MediaEscolarCtrl;
 import com.topartes.mediaescolar.datamodel.MediaEscolarDataModel;
 import com.topartes.mediaescolar.model.MediaEscolar;
+import com.topartes.mediaescolar.util.UtilMediaEscolar;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.nio.channels.FileChannel;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -181,5 +185,79 @@ public class DataSource extends SQLiteOpenHelper{
         }
         cursor.close();
         return lista;
+    }
+
+    public void deletarTabela(String tabela){
+        try{
+            db.execSQL("DROP TABLE IF EXISTS "+tabela);
+        }catch (Exception e){
+        }
+    }
+
+    public void criarTabela(String queryCriarTabela){
+        try {
+            db.execSQL(queryCriarTabela);
+        }catch (SQLiteCantOpenDatabaseException e){
+
+        }
+    }
+
+    public void backupBancoDeDados() {
+
+        File sd; // Caminho de destino - Download
+        File data; // Caminho de origem - data/data/pacote/db_name
+
+        File arquivoBancoDeDados; // Nome do banco de dados
+        File arquivoBackupBancoDeDados; // Nome do arquivo de backup
+
+        FileChannel origem; // Leitura do arquivo original
+        FileChannel destino; // Gravação do arquivo de destino com o backup
+
+        try {
+
+            sd = Environment.getExternalStoragePublicDirectory(
+                    Environment.DIRECTORY_DOWNLOADS);
+
+            data = Environment.getDataDirectory();
+
+            Log.v("DB", "SD - " + sd.getAbsolutePath());
+            Log.v("DB", "DATA - " + data.getAbsolutePath());
+
+            if (sd.canWrite()) {
+
+                String nomeDoBancoDeDados =
+
+                        "//data//com.topartes.mediaescolar//databases/" + DB_NAME;
+
+                String nomeDoArquivoDeBackup =
+
+                        "bkp_" + DB_NAME;
+
+                arquivoBancoDeDados = new File(data, nomeDoBancoDeDados);
+                arquivoBackupBancoDeDados = new File(sd, nomeDoArquivoDeBackup);
+
+                if (arquivoBancoDeDados.exists()) {
+
+                    origem = new FileInputStream(
+                            arquivoBancoDeDados).getChannel();
+
+                    destino = new FileOutputStream(
+                            arquivoBackupBancoDeDados).getChannel();
+
+                    destino.transferFrom(origem, 0, origem.size());
+
+                    origem.close();
+                    destino.close();
+
+                }
+
+            }
+
+        } catch (Exception e) {
+
+            Log.e("DB", "Erro: " + e.getMessage());
+
+        }
+
     }
 }
