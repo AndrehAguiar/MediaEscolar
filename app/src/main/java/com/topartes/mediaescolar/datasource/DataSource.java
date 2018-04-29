@@ -258,6 +258,5 @@ public class DataSource extends SQLiteOpenHelper{
             Log.e("DB", "Erro: " + e.getMessage());
 
         }
-
     }
 }
