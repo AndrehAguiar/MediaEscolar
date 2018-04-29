@@ -20,6 +20,7 @@ import com.topartes.mediaescolar.R;
 import com.topartes.mediaescolar.controller.MediaEscolarCtrl;
 import com.topartes.mediaescolar.datasource.DataSource;
 import com.topartes.mediaescolar.model.MediaEscolar;
+import com.topartes.mediaescolar.util.UtilMediaEscolar;
 import com.topartes.mediaescolar.view.MainActivity;
 
 import java.util.ArrayList;
@@ -254,7 +255,7 @@ public class ResultadoFinalListAdapter
             linha.txtMateria.setText(mediaEscolar.getMateria());
             linha.txtBimestre.setText(mediaEscolar.getBimestre());
             linha.txtSituacao.setText(mediaEscolar.getSituacao());
-            linha.txtMedia.setText(MainActivity.formataValorDecimal(mediaEscolar.getMediaFinal()));
+            linha.txtMedia.setText(UtilMediaEscolar.formataValorDecimal(mediaEscolar.getMediaFinal()));
 
             linha.txtMedia.setText(String.valueOf(mediaEscolar.getMediaFinal()));
 

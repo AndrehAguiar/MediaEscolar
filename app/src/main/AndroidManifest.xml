@@ -1,6 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.topartes.mediaescolar">
+    xmlns:tools="http://schemas.android.com/tools"
+    package="com.topartes.mediaescolar"
+    tools:ignore="ExtraText">
+
+    <!--Permissão para ACESSAR INTERNET -->
+    <uses-permission android:name="android.permission.INTERNET"/>
+
+    <!--Permissão para LER dados no cartão de memória -->
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+
+    <!--Permissão para GRAVAR dados no cartão de memória -->
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
 
     <application
         android:allowBackup="true"

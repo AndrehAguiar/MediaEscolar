@@ -15,6 +15,7 @@ import android.widget.Toast;
 import com.topartes.mediaescolar.R;
 import com.topartes.mediaescolar.controller.MediaEscolarCtrl;
 import com.topartes.mediaescolar.model.MediaEscolar;
+import com.topartes.mediaescolar.util.UtilMediaEscolar;
 import com.topartes.mediaescolar.view.MainActivity;
 
 public class BimestreCFragment extends Fragment {
@@ -74,22 +75,37 @@ public class BimestreCFragment extends Fragment {
                 if(editNotaProva.getText().toString().length() > 0) {
                     notaProva = Double.parseDouble(editNotaProva.getText().toString());
 
-                }else{
-                    editNotaProva.setError("Informe a nota da prova");
-                    editNotaProva.requestFocus();
+                    if (controller.validaNotas(10.0)) {
+                        dadosValidados = false;
+                        UtilMediaEscolar.showMensagem(context,"Informe uma nota menor que 10");
+                        editNotaProva.requestFocus();
+                    } else {
+                        dadosValidados = true;
+                    }
+                } else{
                     dadosValidados = false;
+                    UtilMediaEscolar.showMensagem(context,"Informe a nota da prova");
+                    editNotaProva.requestFocus();
                 }
                 if( editNotaTrabalho.getText().toString().length() > 0){
                     notaTrabalho = Double.parseDouble(editNotaTrabalho.getText().toString());
-                }else{
-                    editNotaTrabalho.setError("Informe a nota do trabalho");
-                    editNotaTrabalho.requestFocus();
+
+                    if (controller.validaNotas(10.0)) {
+                        dadosValidados = false;
+                        UtilMediaEscolar.showMensagem(context,"Informe a nota do trabalho");
+                        editNotaTrabalho.requestFocus();
+                    }else {
+                        dadosValidados = true;
+                    }
+                }else {
                     dadosValidados = false;
+                    UtilMediaEscolar.showMensagem(context,"Informe a nota do trabalho");
+                    editNotaTrabalho.requestFocus();
                 }
                 if(editMateria.getText().toString().length() == 0){
-                    editMateria.setError("Informe a matéria");
-                    editMateria.requestFocus();
                     dadosValidados = false;
+                    UtilMediaEscolar.showMensagem(context, "Informe a matéria");
+                    editMateria.requestFocus();
                 }
                 if(dadosValidados) {
 
@@ -106,17 +122,17 @@ public class BimestreCFragment extends Fragment {
                     mediaEscolar.setMediaFinal(media);
                     mediaEscolar.setSituacao(controller.resultadoFinal(media));
 
-                    txtResultado.setText(MainActivity.formataValorDecimal(media));
+                    txtResultado.setText(UtilMediaEscolar.formataValorDecimal(media));
 
                     txtSituacaoFinal.setText(mediaEscolar.getSituacao());
 
-                    editNotaProva.setText(MainActivity.formataValorDecimal(notaProva));
-                    editNotaTrabalho.setText(MainActivity.formataValorDecimal(notaTrabalho));
+                    editNotaProva.setText(UtilMediaEscolar.formataValorDecimal(notaProva));
+                    editNotaTrabalho.setText(UtilMediaEscolar.formataValorDecimal(notaTrabalho));
                     if(controller.salvar(mediaEscolar)){
-                        Toast.makeText(context, "Dados salvos com sucesso!", Toast.LENGTH_LONG).show();
+                        UtilMediaEscolar.showMensagem(context, "Dados salvos com sucesso!");
 
                     }else{
-                        Toast.makeText(context, "Erro ao salvar os dados!", Toast.LENGTH_LONG).show();
+                        UtilMediaEscolar.showMensagem(context, "Erro ao salvar os dados!");
                     }
 
                     //salvarSharedPreferences();
@@ -131,7 +147,7 @@ public class BimestreCFragment extends Fragment {
 //                    });
 
             }catch (Exception e){
-                Toast.makeText(context,"Informe todos os dados", Toast.LENGTH_LONG).show();
+                UtilMediaEscolar.showMensagem(context,"Informe todos os dados");
             }
 
             }

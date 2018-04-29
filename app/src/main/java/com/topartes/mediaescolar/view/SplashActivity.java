@@ -40,6 +40,9 @@ public class SplashActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splash);
 
+        MediaEscolarCtrl mediaEscolarCtrl = new MediaEscolarCtrl(getBaseContext());
+        mediaEscolarCtrl.backupBancoDeDados();
+
         textToSpeech = new TextToSpeech(this, this);
 
         apresentaTelaSplash();
