@@ -1,14 +1,17 @@
 package com.topartes.mediaescolar.model;
 
-public class MediaEscolar{
-private int id;
-private String materia;
-private String bimestre;
-private String situacao;
-private double notaProva;
-private double notaTrabalho;
-private double mediaFinal;
+public class MediaEscolar {
+    private int id; // PK SQLite
+    private int idpk; // PK MySQL
+    private String materia;
+    private String bimestre;
+    private String situacao;
+    private double notaProva;
+    private double notaTrabalho;
+    private double mediaFinal;
 
+    public MediaEscolar(){
+    }
 
     public int getId() {
         return id;
@@ -16,6 +19,14 @@ private double mediaFinal;
 
     public void setId(int id) {
         this.id = id;
+    }
+
+    public int getIdpk() {
+        return idpk;
+    }
+
+    public void setIdpk(int idpk) {
+        this.idpk = idpk;
     }
 
     public String getMateria() {

@@ -20,16 +20,17 @@ import java.nio.channels.FileChannel;
 import java.util.ArrayList;
 import java.util.List;
 
-public class DataSource extends SQLiteOpenHelper{
+public class DataSource extends SQLiteOpenHelper {
 
     private static final String DB_NAME = "media_escolar.sqlite";
     private static final int DB_VERSION = 1;
 
-    static Cursor cursor;
-    static SQLiteDatabase db;
+    Cursor cursor;
+    SQLiteDatabase db;
 
     /**
      * Abre banco de dados para edição
+     *
      * @param context
      */
 
@@ -40,6 +41,7 @@ public class DataSource extends SQLiteOpenHelper{
 
     /**
      * Cria a tabela no banco de dados com os atributos definidos
+     *
      * @param db
      * @see com.topartes.mediaescolar.datamodel
      */
@@ -61,6 +63,7 @@ public class DataSource extends SQLiteOpenHelper{
 
     /**
      * Atualiza alterações na estrutura do banco de dados
+     *
      * @param db
      * @param oldVersion
      * @param newVersion
@@ -74,17 +77,18 @@ public class DataSource extends SQLiteOpenHelper{
 
     /**
      * Insere novos registros na tabela criada
+     *
      * @param tabela
      * @param dados
-     * @see com.topartes.mediaescolar.controller
      * @return boolean Sucesso se alterado
+     * @see com.topartes.mediaescolar.controller
      */
 
-    public boolean insert(String tabela, ContentValues dados){
+    public boolean insert(String tabela, ContentValues dados) {
         boolean sucesso = true;
-        try{
+        try {
             sucesso = db.insert(tabela, null, dados) > 0;
-        }catch (Exception e){
+        } catch (Exception e) {
             sucesso = false;
             Log.e("Insert", "ERRO ------> BD" + e.getMessage());
         }
@@ -93,34 +97,36 @@ public class DataSource extends SQLiteOpenHelper{
 
     /**
      * Altera os registros da tabela de acordo com o ID
+     *
      * @param tabela
      * @param dados
-     * @see com.topartes.mediaescolar.controller
      * @return boolean Sucesso se alterado
+     * @see com.topartes.mediaescolar.controller
      */
 
-    public boolean alterar(String tabela, ContentValues dados){
+    public boolean alterar(String tabela, ContentValues dados) {
         boolean sucesso = true;
         int id = dados.getAsInteger("id");
-        try{
+        try {
             sucesso = db.update(tabela, dados, "id=?", new String[]{Integer.toString(id)}) > 0;
 
-        }catch (Exception e) {
+        } catch (Exception e) {
             sucesso = false;
-            Log.e("Editar", "ERRO -------- Id"+ e.getMessage());
+            Log.e("Editar", "ERRO -------- Id" + e.getMessage());
         }
         return sucesso;
     }
 
     /**
      * Deleta registros da tabela de acordo com o ID
+     *
      * @param tabela
      * @param id
-     * @see com.topartes.mediaescolar.controller
      * @return
+     * @see com.topartes.mediaescolar.controller
      */
 
-    public boolean deletar(String tabela, int id){
+    public boolean deletar(String tabela, int id) {
         boolean sucesso = true;
         sucesso = db.delete(tabela, "id=?", new String[]{Integer.toString(id)}) > 0;
 
@@ -129,21 +135,23 @@ public class DataSource extends SQLiteOpenHelper{
 
     /**
      * Lista todos os registros da tabela
+     *
      * @return List <lista>Id e Matéria</lista>
      */
 
-    public static List<MediaEscolar> getAllMediaEscolar() {
+    public List<MediaEscolar> getAllMediaEscolar() {
         MediaEscolar obj;
 
         List<MediaEscolar> lista = new ArrayList<>();
 
-        String sql = "SELECT * FROM "+ MediaEscolarDataModel.getTABELA() + " ORDER BY id ASC";
-        cursor = db.rawQuery(sql,null);
+        String sql = "SELECT * FROM " + MediaEscolarDataModel.getTABELA() + " ORDER BY id ASC";
+        cursor = db.rawQuery(sql, null);
 
-        if(cursor.moveToFirst()){
-            do{
+        if (cursor.moveToFirst()) {
+            do {
                 obj = new MediaEscolar();
                 obj.setId(cursor.getInt(cursor.getColumnIndex(MediaEscolarDataModel.getId())));
+                obj.setIdpk(cursor.getInt(cursor.getColumnIndex(MediaEscolarDataModel.getIdpk())));
                 obj.setBimestre(cursor.getString(cursor.getColumnIndex(MediaEscolarDataModel.getBimestre())));
                 obj.setMateria(cursor.getString(cursor.getColumnIndex(MediaEscolarDataModel.getMateria())));
                 obj.setNotaProva(cursor.getDouble(cursor.getColumnIndex(MediaEscolarDataModel.getNotaProva())));
@@ -153,25 +161,26 @@ public class DataSource extends SQLiteOpenHelper{
 
                 lista.add(obj);
 
-            }while (cursor.moveToNext());
+            } while (cursor.moveToNext());
         }
         cursor.close();
         return lista;
     }
 
-    public static ArrayList<MediaEscolar> getAllResultadoFinal() {
+    public ArrayList<MediaEscolar> getAllResultadoFinal() {
         MediaEscolar obj;
 
         ArrayList<MediaEscolar> lista = new ArrayList<>();
 
-        String sql = "SELECT * FROM "+ MediaEscolarDataModel.getTABELA() + " ORDER BY id ASC";
-        cursor = db.rawQuery(sql,null);
+        String sql = "SELECT * FROM " + MediaEscolarDataModel.getTABELA() + " ORDER BY id ASC";
+        cursor = db.rawQuery(sql, null);
 
-        if(cursor.moveToFirst()){
-            do{
+        if (cursor.moveToFirst()) {
+            do {
                 obj = new MediaEscolar();
 
                 obj.setId(cursor.getInt(cursor.getColumnIndex(MediaEscolarDataModel.getId())));
+                obj.setIdpk(cursor.getInt(cursor.getColumnIndex(MediaEscolarDataModel.getIdpk())));
                 obj.setBimestre(cursor.getString(cursor.getColumnIndex(MediaEscolarDataModel.getBimestre())));
                 obj.setMateria(cursor.getString(cursor.getColumnIndex(MediaEscolarDataModel.getMateria())));
                 obj.setNotaProva(cursor.getDouble(cursor.getColumnIndex(MediaEscolarDataModel.getNotaProva())));
@@ -181,23 +190,23 @@ public class DataSource extends SQLiteOpenHelper{
 
                 lista.add(obj);
 
-            }while (cursor.moveToNext());
+            } while (cursor.moveToNext());
         }
         cursor.close();
         return lista;
     }
 
-    public void deletarTabela(String tabela){
-        try{
-            db.execSQL("DROP TABLE IF EXISTS "+tabela);
-        }catch (Exception e){
+    public void deletarTabela(String tabela) {
+        try {
+            db.execSQL("DROP TABLE IF EXISTS " + tabela);
+        } catch (Exception e) {
         }
     }
 
-    public void criarTabela(String queryCriarTabela){
+    public void criarTabela(String queryCriarTabela) {
         try {
             db.execSQL(queryCriarTabela);
-        }catch (SQLiteCantOpenDatabaseException e){
+        } catch (SQLiteCantOpenDatabaseException e) {
 
         }
     }
@@ -258,6 +267,5 @@ public class DataSource extends SQLiteOpenHelper{
             Log.e("DB", "Erro: " + e.getMessage());
 
         }
-
     }
 }
