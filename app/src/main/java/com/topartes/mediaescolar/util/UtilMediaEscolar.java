@@ -6,8 +6,10 @@ import android.widget.Toast;
 import java.text.DecimalFormat;
 
 public class UtilMediaEscolar {
-
-    public static final String URL_WEB_SERVICE = "http://192.168.56.1:81/mediaescolar/";
+    
+    // Altere "IPlocal:Porta" pelo número de IP do servidoer WEB 
+    // EM caso de teste localhost altere IPlocal pelo IP da máquina e a Porta pela prota 80 ou 81...
+    public static final String URL_WEB_SERVICE = "http://IPlocal:Porta/mediaescolar/";
 
     //TEMPO máximo para conectar ao apache
     public static final int CONECTION_TIMEOUT = 10000; //10seg
