@@ -19,8 +19,8 @@ public class UtilMediaEscolar {
         return df.format(valor);
     }
 
-    public static void showMensagem(Context context, String mensagem){
-        Toast.makeText(context,mensagem,Toast.LENGTH_LONG).show();
+    public static void showMensagem(Context context, String mensagem) {
+        Toast.makeText(context, mensagem, Toast.LENGTH_LONG).show();
     }
 
 }

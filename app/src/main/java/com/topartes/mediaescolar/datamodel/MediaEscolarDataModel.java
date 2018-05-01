@@ -5,6 +5,7 @@ public class MediaEscolarDataModel {
     private final static String TABELA = "media_escolar";
 
     private static final String id = "id";
+    private static final String idpk = "idpk";
     private static final String materia = "materia";
     private static final String bimestre = "bimestre";
     private static final String situacao = "situacao";
@@ -19,6 +20,7 @@ public class MediaEscolarDataModel {
         queryCriarTabela = "CREATE TABLE " + TABELA;
         queryCriarTabela += "(";
         queryCriarTabela += id + " INTEGER PRIMARY KEY AUTOINCREMENT, ";
+        queryCriarTabela += idpk + " INTEGER, ";
         queryCriarTabela += materia + " TEXT, ";
         queryCriarTabela += bimestre + " TEXT, ";
         queryCriarTabela += situacao + " TEXT, ";
@@ -36,6 +38,10 @@ public class MediaEscolarDataModel {
 
     public static String getId() {
         return id;
+    }
+
+    public static String getIdpk() {
+        return idpk;
     }
 
     public static String getMateria() {

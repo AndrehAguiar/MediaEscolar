@@ -8,6 +8,7 @@ import android.content.DialogInterface;
 import android.database.DataSetObserver;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,6 +21,8 @@ import com.topartes.mediaescolar.R;
 import com.topartes.mediaescolar.controller.MediaEscolarCtrl;
 import com.topartes.mediaescolar.datasource.DataSource;
 import com.topartes.mediaescolar.model.MediaEscolar;
+import com.topartes.mediaescolar.util.AlterarAsyncTask;
+import com.topartes.mediaescolar.util.DeletarAsyncTask;
 import com.topartes.mediaescolar.util.UtilMediaEscolar;
 import com.topartes.mediaescolar.view.MainActivity;
 
@@ -31,8 +34,7 @@ public class ResultadoFinalListAdapter
 
     public static int mediaControler;
     Context context;
-
-   // private int ultimaPositcao = -1;
+    // private int ultimaPositcao = -1;
 
     AlertDialog.Builder builder;
     AlertDialog alert;
@@ -44,14 +46,14 @@ public class ResultadoFinalListAdapter
 
     private static class ViewHolder {
         TextView txtBimestre,
-        txtSituacao,
-        txtMateria,
-        txtMedia;
+                txtSituacao,
+                txtMateria,
+                txtMedia;
         ImageView imgItem,
-        imgConsultar,
-        imgEditar,
-        imgDeletar,
-        imgSalvar;
+                imgConsultar,
+                imgEditar,
+                imgDeletar,
+                imgSalvar;
     }
 
     public ResultadoFinalListAdapter(ArrayList<MediaEscolar> dataSet, Context context) {
@@ -61,7 +63,7 @@ public class ResultadoFinalListAdapter
         this.context = context;
     }
 
-    public void atualizarLista(ArrayList<MediaEscolar> novosDados){
+    public void atualizarLista(ArrayList<MediaEscolar> novosDados) {
         this.dados.clear();
         this.dados.addAll(novosDados);
         notifyDataSetChanged();
@@ -70,17 +72,16 @@ public class ResultadoFinalListAdapter
     @SuppressLint("SetTextI18n")
     @Override
     public void onClick(final View view) {
-
+        //mediaEscolar = null;
         int posicao = (Integer) view.getTag();
         Object object = getItem(posicao);
         mediaEscolar = (MediaEscolar) object;
-
         controller = new MediaEscolarCtrl(getContext());
 
         switch (view.getId()) {
             case R.id.imgItem:
                 Snackbar.make(view, "Nota da Prova: " +
-                        mediaEscolar.getNotaProva(),
+                                mediaEscolar.getNotaProva(),
                         Snackbar.LENGTH_LONG).setAction("No Action", null).show();
                 break;
 
@@ -93,9 +94,20 @@ public class ResultadoFinalListAdapter
                 builder.setPositiveButton("SIM", new Dialog.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        controller.deletar(mediaEscolar);
-                        notifyDataSetChanged();
-                        atualizarLista(controller.getResultadoFinal());
+                        try {
+                            controller.deletar(mediaEscolar);
+
+                            DeletarAsyncTask task =
+                                    new DeletarAsyncTask(mediaEscolar, context);
+                            task.execute();
+
+                            //notifyDataSetChanged();
+
+                            atualizarLista(controller.getResultadoFinal());
+
+                        } catch (Exception e) {
+                            Log.e("DELETAR", "ERRO-----Resultado Final delete média escolar" + e.getMessage());
+                        }
                     }
                 });
                 builder.setNegativeButton("CANCELAR", new Dialog.OnClickListener() {
@@ -113,12 +125,12 @@ public class ResultadoFinalListAdapter
                 builder = new AlertDialog.Builder(getContext());
                 builder.setTitle("CONSULTA");
                 builder.setMessage(
-                        "Bimestre: "+mediaEscolar.getBimestre()+"\n"+
-                        "Matéria: "+mediaEscolar.getMateria()+"\n" +
-                        "Situação: "+mediaEscolar.getSituacao()+"\n" +
-                        "Nota da Prova: "+ mediaEscolar.getNotaProva()+"\n" +
-                        "Nota do Trabalho: "+mediaEscolar.getNotaTrabalho()+"\n"+
-                        "Média Final: "+mediaEscolar.getMediaFinal()
+                        "Bimestre: " + mediaEscolar.getBimestre() + "\n" +
+                                "Matéria: " + mediaEscolar.getMateria() + "\n" +
+                                "Situação: " + mediaEscolar.getSituacao() + "\n" +
+                                "Nota da Prova: " + mediaEscolar.getNotaProva() + "\n" +
+                                "Nota do Trabalho: " + mediaEscolar.getNotaTrabalho() + "\n" +
+                                "Média Final: " + mediaEscolar.getMediaFinal()
                 );
                 builder.setCancelable(true);
                 builder.setIcon(R.mipmap.ic_launcher);
@@ -142,7 +154,12 @@ public class ResultadoFinalListAdapter
                 builder.setPositiveButton("SIM", new Dialog.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        controller.alterar(mediaEscolar);
+                        try {
+                            controller.alterar(mediaEscolar);
+
+                        } catch (Exception e) {
+                            Log.e("SALVAR", "ERRO-----Resultado Final salvar média escolar" + e.getMessage());
+                        }
                         atualizarLista(controller.getResultadoFinal());
                     }
                 });
@@ -168,8 +185,7 @@ public class ResultadoFinalListAdapter
                 final TextView txtSituacao = alertView.findViewById(R.id.txtResultado);
                 final TextView txtMediaFinal = alertView.findViewById(R.id.txtSituacaoFinal);
                 final Integer id = mediaEscolar.getId();
-
-                final String situacaoFinal = mediaEscolar.getSituacao();
+                final Integer idpk = mediaEscolar.getIdpk();
 
                 edNotaProva.setText(Double.toString(mediaEscolar.getNotaProva()));
                 edNotaTrabalho.setText(Double.toString(mediaEscolar.getNotaTrabalho()));
@@ -185,96 +201,100 @@ public class ResultadoFinalListAdapter
                 alertbox.setView(alertView);
                 alertbox.setNeutralButton("Gravar alteração",
                         new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface arg0, int arg1){
+                            @Override
+                            public void onClick(DialogInterface arg0, int arg1) {
+                                //MediaEscolarCtrl mediaController = new MediaEscolarCtrl(context);
+                                //mediaController.idSelectMediaEscolar(id);
+                                mediaEscolar.setId(id);
+                                mediaEscolar.setIdpk(idpk);
+                                mediaEscolar.setMateria(edMateria.getText().toString());
+                                mediaEscolar.setNotaProva(Double.parseDouble(edNotaProva.getText().toString()));
+                                mediaEscolar.setNotaTrabalho(Double.parseDouble(edNotaTrabalho.getText().toString()));
 
-                        final MediaEscolarCtrl mediaController = new MediaEscolarCtrl(context);
+                                Double mediaFinal = controller.calcularMedia(mediaEscolar);
+                                mediaEscolar.setSituacao(controller.resultadoFinal(mediaFinal));
 
-                        mediaController.idSelectMediaEscolar(id);
+                                mediaEscolar.setMediaFinal(mediaFinal);
 
+                                try {
 
-                        //Todo: Implementar Validação
-                            mediaEscolar.setId(id);
-                            mediaEscolar.setMateria(edMateria.getText().toString());
-                            mediaEscolar.setNotaProva(Double.parseDouble(edNotaProva.getText().toString()));
-                            mediaEscolar.setNotaTrabalho(Double.parseDouble(edNotaTrabalho.getText().toString()));
+                                    controller.alterar(mediaEscolar);
+                                    AlterarAsyncTask task = new AlterarAsyncTask(mediaEscolar, context);
+                                    task.execute();
 
-                            Double mediaFinal = controller.calcularMedia(mediaEscolar);
+                                } catch (Exception e) {
 
-                            mediaEscolar.setMediaFinal(mediaFinal);
-                            mediaEscolar.setSituacao(situacaoFinal);
-
-                            controller.alterar(mediaEscolar);
-                            atualizarLista(controller.getResultadoFinal());
-                            
-                        }
-                    });
+                                    Log.e("DELETAR", "ERRO-----Resultado Final alterar média escolar" + e.getMessage());
+                                }
+                                atualizarLista(controller.getResultadoFinal());
+                            }
+                        });
 
                 alertbox.show();
                 break;
-             }
         }
-
-        // Padrão de projeto Observer
-        @Override
-        public void registerDataSetObserver(DataSetObserver observer) {
-            super.registerDataSetObserver(observer);
-        }
-
-        @SuppressLint("SetTextI18n")
-        @NonNull
-        @Override
-        public View getView ( int position,
-                              View dataSet,
-                              @NonNull ViewGroup parent){
-
-            mediaEscolar = getItem(position);
-
-            if (dataSet == null) {
-
-                linha = new ViewHolder();
-                LayoutInflater layoutResultadoFinalList = LayoutInflater.from(getContext());
-                dataSet = layoutResultadoFinalList.inflate(R.layout.listview_resultado_final, parent, false);
-
-                linha.txtMateria = dataSet.findViewById(R.id.txtMateria);
-                linha.txtBimestre = dataSet.findViewById(R.id.txtBimestre);
-                linha.txtSituacao = dataSet.findViewById(R.id.txtResultado);
-                linha.txtMedia = dataSet.findViewById(R.id.txtMedia);
-
-                linha.imgItem = dataSet.findViewById(R.id.imgItem);
-                linha.imgConsultar = dataSet.findViewById(R.id.imgConsultar);
-                linha.imgEditar = dataSet.findViewById(R.id.imgEditar);
-                linha.imgDeletar = dataSet.findViewById(R.id.imgDeletar);
-                linha.imgSalvar = dataSet.findViewById(R.id.imgSalvar);
-
-                dataSet.setTag(linha);
-            } else {
-                linha = (ViewHolder) dataSet.getTag();
-            }
-
-            linha.txtMateria.setText(mediaEscolar.getMateria());
-            linha.txtBimestre.setText(mediaEscolar.getBimestre());
-            linha.txtSituacao.setText(mediaEscolar.getSituacao());
-            linha.txtMedia.setText(UtilMediaEscolar.formataValorDecimal(mediaEscolar.getMediaFinal()));
-
-            linha.txtMedia.setText(String.valueOf(mediaEscolar.getMediaFinal()));
-
-            linha.imgItem.setOnClickListener(this);
-            linha.imgItem.setTag(position);
-
-            linha.imgDeletar.setOnClickListener(this);
-            linha.imgDeletar.setTag(position);
-
-            linha.imgEditar.setOnClickListener(this);
-            linha.imgEditar.setTag(position);
-
-            linha.imgSalvar.setOnClickListener(this);
-            linha.imgSalvar.setTag(position);
-
-            linha.imgConsultar.setOnClickListener(this);
-            linha.imgConsultar.setTag(position);
-
-            return dataSet;
-        }
-
     }
+
+    // Padrão de projeto Observer
+    @Override
+    public void registerDataSetObserver(DataSetObserver observer) {
+        super.registerDataSetObserver(observer);
+    }
+
+    @SuppressLint("SetTextI18n")
+    @NonNull
+    @Override
+    public View getView(int position,
+                        View dataSet,
+                        @NonNull ViewGroup parent) {
+
+        mediaEscolar = getItem(position);
+
+        if (dataSet == null) {
+
+            linha = new ViewHolder();
+            LayoutInflater layoutResultadoFinalList = LayoutInflater.from(getContext());
+            dataSet = layoutResultadoFinalList.inflate(R.layout.listview_resultado_final, parent, false);
+
+            linha.txtMateria = dataSet.findViewById(R.id.txtMateria);
+            linha.txtBimestre = dataSet.findViewById(R.id.txtBimestre);
+            linha.txtSituacao = dataSet.findViewById(R.id.txtResultado);
+            linha.txtMedia = dataSet.findViewById(R.id.txtMedia);
+
+            linha.imgItem = dataSet.findViewById(R.id.imgItem);
+            linha.imgConsultar = dataSet.findViewById(R.id.imgConsultar);
+            linha.imgEditar = dataSet.findViewById(R.id.imgEditar);
+            linha.imgDeletar = dataSet.findViewById(R.id.imgDeletar);
+            linha.imgSalvar = dataSet.findViewById(R.id.imgSalvar);
+
+            dataSet.setTag(linha);
+        } else {
+            linha = (ViewHolder) dataSet.getTag();
+        }
+
+        linha.txtMateria.setText(mediaEscolar.getMateria());
+        linha.txtBimestre.setText(mediaEscolar.getBimestre());
+        linha.txtSituacao.setText(mediaEscolar.getSituacao());
+        linha.txtMedia.setText(UtilMediaEscolar.formataValorDecimal(mediaEscolar.getMediaFinal()));
+
+        linha.txtMedia.setText(String.valueOf(mediaEscolar.getMediaFinal()));
+
+        linha.imgItem.setOnClickListener(this);
+        linha.imgItem.setTag(position);
+
+        linha.imgDeletar.setOnClickListener(this);
+        linha.imgDeletar.setTag(position);
+
+        linha.imgEditar.setOnClickListener(this);
+        linha.imgEditar.setTag(position);
+
+        linha.imgSalvar.setOnClickListener(this);
+        linha.imgSalvar.setTag(position);
+
+        linha.imgConsultar.setOnClickListener(this);
+        linha.imgConsultar.setTag(position);
+
+        return dataSet;
+    }
+
+}
