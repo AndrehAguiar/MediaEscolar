@@ -11,7 +11,7 @@ import com.topartes.mediaescolar.model.MediaEscolar;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MediaEscolarCtrl extends DataSource{
+public class MediaEscolarCtrl extends DataSource {
 
     ContentValues dados;
 
@@ -19,22 +19,24 @@ public class MediaEscolarCtrl extends DataSource{
         super(context);
     }
 
-    public double calcularMedia(MediaEscolar obj){
+    public double calcularMedia(MediaEscolar obj) {
 
-        return (obj.getNotaProva() + obj.getNotaTrabalho())/2;
+        return (obj.getNotaProva() + obj.getNotaTrabalho()) / 2;
     }
 
-    public String resultadoFinal(double media){
+    public String resultadoFinal(double media) {
 
         return media >= 7 ? "Aprovado" : "Reprovado";
     }
 
-    public boolean salvar(MediaEscolar obj){
+    public boolean salvar(MediaEscolar obj) {
 
         boolean sucesso = true;
 
         dados = new ContentValues();
 
+        dados.put(MediaEscolarDataModel.getId(), obj.getId());
+        dados.put(MediaEscolarDataModel.getIdpk(), obj.getIdpk());
         dados.put(MediaEscolarDataModel.getMateria(), obj.getMateria());
         dados.put(MediaEscolarDataModel.getBimestre(), obj.getBimestre());
         dados.put(MediaEscolarDataModel.getSituacao(), obj.getSituacao());
@@ -47,13 +49,14 @@ public class MediaEscolarCtrl extends DataSource{
         return sucesso;
     }
 
-    public boolean alterar(MediaEscolar obj){
+    public boolean alterar(MediaEscolar obj) {
 
         boolean sucesso = true;
 
         dados = new ContentValues();
 
         dados.put(MediaEscolarDataModel.getId(), obj.getId());
+        dados.put(MediaEscolarDataModel.getIdpk(), obj.getIdpk());
         dados.put(MediaEscolarDataModel.getMateria(), obj.getMateria());
         dados.put(MediaEscolarDataModel.getBimestre(), obj.getBimestre());
         dados.put(MediaEscolarDataModel.getSituacao(), obj.getSituacao());
@@ -66,7 +69,7 @@ public class MediaEscolarCtrl extends DataSource{
         return sucesso;
     }
 
-    public boolean deletar(MediaEscolar obj){
+    public boolean deletar(MediaEscolar obj) {
 
         boolean sucesso = true;
         sucesso = deletar(MediaEscolarDataModel.getTABELA(), obj.getId());
@@ -74,26 +77,26 @@ public class MediaEscolarCtrl extends DataSource{
         return sucesso;
     }
 
-    public static List<MediaEscolar> listar() {
+    public List<MediaEscolar> listar() {
         return getAllMediaEscolar();
     }
 
-    public ArrayList<MediaEscolar> getResultadoFinal(){
+    public ArrayList<MediaEscolar> getResultadoFinal() {
         return getAllResultadoFinal();
     }
 
-    public Integer idSelectMediaEscolar(Integer id){
+    public Integer idSelectMediaEscolar(Integer id) {
 
         MediaEscolar mediaEscolar = null;
 
         SQLiteDatabase db = this.getReadableDatabase();
 
-        String sql = "SELECT id FROM MediaEscolarDataModel.getTABELA() WHERE id = "+id;
+        String sql = "SELECT id FROM MediaEscolarDataModel.getTABELA() WHERE id = " + id;
 
         return id;
     }
 
-    public boolean validaNotas(Double nota){
+    public boolean validaNotas(Double nota) {
         return nota > 10;
     }
 

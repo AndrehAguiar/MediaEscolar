@@ -10,25 +10,23 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.topartes.mediaescolar.R;
 import com.topartes.mediaescolar.controller.MediaEscolarCtrl;
 import com.topartes.mediaescolar.model.MediaEscolar;
+import com.topartes.mediaescolar.util.IncluirAsyncTask;
 import com.topartes.mediaescolar.util.UtilMediaEscolar;
-import com.topartes.mediaescolar.view.MainActivity;
 
 public class BimestreAFragment extends Fragment {
 
     MediaEscolar mediaEscolar;
     MediaEscolarCtrl controller;
 
-    Button btnCalcular, btnGravar;
+    Button btnCalcular;
     EditText editMateria;
     EditText editNotaProva;
     EditText editNotaTrabalho;
     TextView txtMateria;
-    TextView txtMedia;
     TextView txtResultado;
     TextView txtSituacaoFinal;
 
@@ -39,7 +37,7 @@ public class BimestreAFragment extends Fragment {
     Boolean dadosValidados = true;
 
     Context context;
-    View view ;
+    View view;
 
 
     public BimestreAFragment() {
@@ -65,7 +63,6 @@ public class BimestreAFragment extends Fragment {
         editNotaProva = view.findViewById(R.id.edNotaProva);
         editNotaTrabalho = view.findViewById(R.id.edNotaTrabalho);
 
-        //btnGravar = view.findViewById(R.id.btnGravar);
         btnCalcular = view.findViewById(R.id.btnCalcular);
 
         txtSituacaoFinal = view.findViewById(R.id.txtSituacaoFinal);
@@ -74,70 +71,59 @@ public class BimestreAFragment extends Fragment {
 
         btnCalcular.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v) {try {
-                if (editNotaProva.getText().toString().length() > 0) {
-                    notaProva = Double.parseDouble(editNotaProva.getText().toString());
-
-                    if (controller.validaNotas(10.0)) {
+            public void onClick(View v) {
+                try {
+                    if (editNotaProva.getText().toString().length() == 0 || controller.validaNotas(10.0)) {
                         dadosValidados = false;
-                        UtilMediaEscolar.showMensagem(context,"Informe uma nota menor que 10");
+                        UtilMediaEscolar.showMensagem(context, "Informe uma nota prova");
                         editNotaProva.requestFocus();
                     } else {
+                        notaProva = Double.parseDouble(editNotaProva.getText().toString());
                         dadosValidados = true;
                     }
-                } else{
-                    dadosValidados = false;
-                    UtilMediaEscolar.showMensagem(context,"Informe a nota da prova");
-                    editNotaProva.requestFocus();
-                }
-                if( editNotaTrabalho.getText().toString().length() > 0){
-                    notaTrabalho = Double.parseDouble(editNotaTrabalho.getText().toString());
-
-                    if (controller.validaNotas(10.0)) {
+                    if (editNotaTrabalho.getText().toString().length() == 0 || controller.validaNotas(10.0)) {
                         dadosValidados = false;
-                        UtilMediaEscolar.showMensagem(context,"Informe a nota do trabalho");
+                        UtilMediaEscolar.showMensagem(context, "Informe a nota do trabalho");
                         editNotaTrabalho.requestFocus();
-                    }else {
+                    } else {
+                        notaTrabalho = Double.parseDouble(editNotaTrabalho.getText().toString());
                         dadosValidados = true;
                     }
-                }else {
-                    dadosValidados = false;
-                    UtilMediaEscolar.showMensagem(context,"Informe a nota do trabalho");
-                    editNotaTrabalho.requestFocus();
-                }
-                if(editMateria.getText().toString().length() == 0){
-                    dadosValidados = false;
-                    UtilMediaEscolar.showMensagem(context, "Informe a matéria");
-                    editMateria.requestFocus();
-                }
-                if(dadosValidados) {
-
-                    mediaEscolar = new MediaEscolar();
-
-                    mediaEscolar.setMateria(editMateria.getText().toString());
-                    mediaEscolar.setNotaProva(Double.parseDouble(editNotaProva.getText().toString()));
-                    mediaEscolar.setNotaTrabalho(Double.parseDouble(editNotaTrabalho.getText().toString()));
-                    mediaEscolar.setBimestre("1º Bimestre");
-
-                    media = controller.calcularMedia(mediaEscolar);
-
-                    mediaEscolar.setMediaFinal(media);
-                    mediaEscolar.setSituacao(controller.resultadoFinal(media));
-
-                    txtResultado.setText(UtilMediaEscolar.formataValorDecimal(media));
-
-                    txtSituacaoFinal.setText(mediaEscolar.getSituacao());
-
-                    editNotaProva.setText(UtilMediaEscolar.formataValorDecimal(notaProva));
-                    editNotaTrabalho.setText(UtilMediaEscolar.formataValorDecimal(notaTrabalho));
-                    if(controller.salvar(mediaEscolar)){
-                        UtilMediaEscolar.showMensagem(context, "Dados salvos com sucesso!");
-
-                    }else{
-                        UtilMediaEscolar.showMensagem(context, "Erro ao salvar os dados!");
+                    if (editMateria.getText().toString().length() == 0) {
+                        dadosValidados = false;
+                        UtilMediaEscolar.showMensagem(context, "Informe a matéria");
+                        editMateria.requestFocus();
                     }
-                    //salvarSharedPreferences();
-                }
+                    if (dadosValidados) {
+
+                        mediaEscolar = new MediaEscolar();
+
+                        mediaEscolar.setMateria(editMateria.getText().toString());
+                        mediaEscolar.setNotaProva(Double.parseDouble(editNotaProva.getText().toString()));
+                        mediaEscolar.setNotaTrabalho(Double.parseDouble(editNotaTrabalho.getText().toString()));
+                        mediaEscolar.setBimestre("1º Bimestre");
+
+                        media = controller.calcularMedia(mediaEscolar);
+
+                        mediaEscolar.setMediaFinal(media);
+                        mediaEscolar.setSituacao(controller.resultadoFinal(media));
+
+                        txtResultado.setText(UtilMediaEscolar.formataValorDecimal(media));
+                        txtSituacaoFinal.setText(mediaEscolar.getSituacao());
+                        editNotaProva.setText(UtilMediaEscolar.formataValorDecimal(notaProva));
+                        editNotaTrabalho.setText(UtilMediaEscolar.formataValorDecimal(notaTrabalho));
+
+                        if (controller.salvar(mediaEscolar)) {
+
+                            UtilMediaEscolar.showMensagem(context, "Dados salvos com sucesso!");
+
+                            IncluirAsyncTask task = new IncluirAsyncTask(mediaEscolar, context);
+                            task.execute();
+
+                        } else {
+                            UtilMediaEscolar.showMensagem(context, "Erro ao salvar os dados!");
+                        }
+                    }
 //                    btnGravar.setOnClickListener(new View.OnClickListener() {
 //                        @Override
 //                        public void onClick(View v) {
@@ -147,13 +133,14 @@ public class BimestreAFragment extends Fragment {
 //                        }
 //                    });
 
-            }catch (Exception e){
-                UtilMediaEscolar.showMensagem(context,"Informe todos os dados");
-            }
+                } catch (Exception e) {
+                    UtilMediaEscolar.showMensagem(context, "Informe todos os dados");
+                }
 
             }
         });
 
         return view;
     }
+
 }

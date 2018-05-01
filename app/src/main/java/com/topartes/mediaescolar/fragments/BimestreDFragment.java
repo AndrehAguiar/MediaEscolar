@@ -1,7 +1,6 @@
 package com.topartes.mediaescolar.fragments;
 
 import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
@@ -11,25 +10,23 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.topartes.mediaescolar.R;
 import com.topartes.mediaescolar.controller.MediaEscolarCtrl;
 import com.topartes.mediaescolar.model.MediaEscolar;
+import com.topartes.mediaescolar.util.IncluirAsyncTask;
 import com.topartes.mediaescolar.util.UtilMediaEscolar;
-import com.topartes.mediaescolar.view.MainActivity;
 
 public class BimestreDFragment extends Fragment {
 
     MediaEscolar mediaEscolar;
     MediaEscolarCtrl controller;
 
-    Button btnCalcular, btnGravar;
+    Button btnCalcular;
     EditText editMateria;
     EditText editNotaProva;
     EditText editNotaTrabalho;
     TextView txtMateria;
-    TextView txtMedia;
     TextView txtResultado;
     TextView txtSituacaoFinal;
 
@@ -52,6 +49,7 @@ public class BimestreDFragment extends Fragment {
         super.onCreate(savedInstanceState);
 
         context = getContext();
+        controller = new MediaEscolarCtrl(context);
     }
 
     @Override
@@ -60,13 +58,10 @@ public class BimestreDFragment extends Fragment {
         // Inflate the layout for this fragment
         view = inflater.inflate(R.layout.fragment_bimestre_d, container, false);
 
-        //setTitle(getText(R.string.app_name)+" - 1º Bimestre");
-
         editMateria = view.findViewById(R.id.edMateria);
         editNotaProva = view.findViewById(R.id.edNotaProva);
         editNotaTrabalho = view.findViewById(R.id.edNotaTrabalho);
 
-        //btnGravar = view.findViewById(R.id.btnGravar);
         btnCalcular = view.findViewById(R.id.btnCalcular);
 
         txtSituacaoFinal = view.findViewById(R.id.txtSituacaoFinal);
@@ -78,36 +73,22 @@ public class BimestreDFragment extends Fragment {
             public void onClick(View v) {
 
                 try {
-                    if(editNotaProva.getText().toString().length() > 0) {
-                        notaProva = Double.parseDouble(editNotaProva.getText().toString());
-
-                        if (controller.validaNotas(10.0)) {
-                            dadosValidados = false;
-                            UtilMediaEscolar.showMensagem(context,"Informe uma nota menor que 10");
-                            editNotaProva.requestFocus();
-                        } else {
-                            dadosValidados = true;
-                        }
-                    } else{
+                    if(editNotaProva.getText().toString().length() == 0 || controller.validaNotas(10.0)) {
                         dadosValidados = false;
                         UtilMediaEscolar.showMensagem(context,"Informe a nota da prova");
                         editNotaProva.requestFocus();
+                    }else{
+                        notaProva = Double.parseDouble(editNotaProva.getText().toString());
+                        dadosValidados = true;
                     }
-                    if( editNotaTrabalho.getText().toString().length() > 0){
-                        notaTrabalho = Double.parseDouble(editNotaTrabalho.getText().toString());
-
-                        if (controller.validaNotas(10.0)) {
+                    if( editNotaTrabalho.getText().toString().length() == 0 || controller.validaNotas(10.0)){
                             dadosValidados = false;
                             UtilMediaEscolar.showMensagem(context,"Informe a nota do trabalho");
                             editNotaTrabalho.requestFocus();
                         }else {
+                        notaTrabalho = Double.parseDouble(editNotaTrabalho.getText().toString());
                             dadosValidados = true;
                         }
-                    }else {
-                        dadosValidados = false;
-                        UtilMediaEscolar.showMensagem(context,"Informe a nota do trabalho");
-                        editNotaTrabalho.requestFocus();
-                    }
                     if(editMateria.getText().toString().length() == 0){
                         dadosValidados = false;
                         UtilMediaEscolar.showMensagem(context, "Informe a matéria");
@@ -116,7 +97,6 @@ public class BimestreDFragment extends Fragment {
                     if(dadosValidados) {
 
                         mediaEscolar = new MediaEscolar();
-                        controller = new MediaEscolarCtrl(context);
 
                         mediaEscolar.setMateria(editMateria.getText().toString());
                         mediaEscolar.setNotaProva(Double.parseDouble(editNotaProva.getText().toString()));
@@ -137,20 +117,13 @@ public class BimestreDFragment extends Fragment {
                         if(controller.salvar(mediaEscolar)){
                             UtilMediaEscolar.showMensagem(context, "Dados salvos com sucesso!");
 
+                            IncluirAsyncTask task = new IncluirAsyncTask(mediaEscolar, context);
+                            task.execute();
+
                         }else{
                             UtilMediaEscolar.showMensagem(context, "Erro ao salvar os dados!");
                         }
-
-                        //salvarSharedPreferences();
                     }
-//                    btnGravar.setOnClickListener(new View.OnClickListener() {
-//                        @Override
-//                        public void onClick(View v) {
-//                            Intent proximaTela = new Intent(PrimeiroBimestreActivity.this,
-//                                    MainActivity.class);
-//                            startActivity(proximaTela);
-//                        }
-//                    });
 
                 }catch (Exception e){
                     UtilMediaEscolar.showMensagem(context,"Informe todos os dados");

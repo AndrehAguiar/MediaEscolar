@@ -21,6 +21,7 @@ import android.view.MenuItem;
 import android.view.View;
 
 import com.topartes.mediaescolar.R;
+import com.topartes.mediaescolar.adapter.ResultadoFinalListAdapter;
 import com.topartes.mediaescolar.controller.MediaEscolarCtrl;
 import com.topartes.mediaescolar.datamodel.MediaEscolarDataModel;
 import com.topartes.mediaescolar.fragments.BimestreAFragment;
@@ -48,6 +49,7 @@ import java.net.URL;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
+    MediaEscolar mediaEscolar;
 
     FragmentManager fragmentManager;
     MediaEscolarCtrl controller;
@@ -68,14 +70,18 @@ public class MainActivity extends AppCompatActivity
         fragmentManager.beginTransaction().replace(R.id.content_fragment, new ModeloFragment()).commit();
 
         FloatingActionButton fab = findViewById(R.id.fab);
+
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View view) {
+            public void onClick(final View view) {
+                MainActivity mainActivity = MainActivity.this;
+                ResultadoFinalListAdapter resultadoFinalListAdapter;
                 Snackbar.make(view, "Sincronizando os dados", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
 
-                // TODO: Criar class AsyncTask
-                SincronizarSistema task = new SincronizarSistema();
+                fragmentManager.beginTransaction().replace(R.id.content_fragment, new ResultadoFinalFragment()).commit();
+
+                SincronizarAsyncTask task = new SincronizarAsyncTask();
                 task.execute();
             }
         });
@@ -88,11 +94,12 @@ public class MainActivity extends AppCompatActivity
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+
     }
 
     @Override
     public void onBackPressed() {
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        DrawerLayout drawer = findViewById(R.id.drawer_layout);
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
         } else {
@@ -158,7 +165,7 @@ public class MainActivity extends AppCompatActivity
         return true;
     }
 
-    private class SincronizarSistema extends AsyncTask<String, String, String>{
+    private class SincronizarAsyncTask extends AsyncTask<String, String, String> {
 
         ProgressDialog progressDiaglog = new ProgressDialog(MainActivity.this);
 
@@ -167,7 +174,7 @@ public class MainActivity extends AppCompatActivity
 
         Uri.Builder builder;
 
-        public SincronizarSistema(){
+        public SincronizarAsyncTask() {
 
             this.builder = new Uri.Builder();
 
@@ -180,9 +187,8 @@ public class MainActivity extends AppCompatActivity
         }
 
         @Override
-        protected void onPreExecute(){
-
-            progressDiaglog.setMessage("Os dados estão sendo atualizado, por favor aguarde...");
+        protected void onPreExecute() {
+            progressDiaglog.setMessage("Os dados estão sendo atualizados, por favor aguarde...");
             progressDiaglog.setCancelable(false);
             progressDiaglog.show();
 
@@ -192,26 +198,26 @@ public class MainActivity extends AppCompatActivity
         protected String doInBackground(String... strings) {
 
             // Monta URL com script PHP
-            try{
+            try {
 
-                url = new URL(UtilMediaEscolar.URL_WEB_SERVICE+"APISincronizarSistema.php");
+                url = new URL(UtilMediaEscolar.URL_WEB_SERVICE + "APISincronizarSistema.php");
 
-            }catch (MalformedURLException e){
+            } catch (MalformedURLException e) {
 
-                Log.e("WEBService", "MalformedURLException - "+e.getMessage());
+                Log.e("WEBService", "MalformedURLException - " + e.getMessage());
 
-            }catch (Exception e){
+            } catch (Exception e) {
 
-                Log.e("WEBService", "Exception - "+e.getMessage());
+                Log.e("WEBService", "Exception - " + e.getMessage());
             }
 
-            try{
+            try {
 
                 conn = (HttpURLConnection) url.openConnection();
                 conn.setConnectTimeout(UtilMediaEscolar.CONECTION_TIMEOUT);
                 conn.setReadTimeout(UtilMediaEscolar.READ_TIME_OUT);
                 conn.setRequestMethod("POST");
-                conn.setRequestProperty("charset","utf-8");
+                conn.setRequestProperty("charset", "utf-8");
 
                 conn.setDoInput(true);
                 conn.setDoOutput(true);
@@ -228,65 +234,68 @@ public class MainActivity extends AppCompatActivity
 
                 conn.connect();
 
-            }catch (IOException e){
+            } catch (IOException e) {
 
-                Log.e("WEBService", "IOException - "+e.getMessage());
+                Log.e("WEBService", "IOException - " + e.getMessage());
 
             }
 
-            try{
+            try {
                 int response_code = conn.getResponseCode();
 
                 /* Lista de ResponseCodes comuns
-                * 200 OK
-                * 403 forbideen
-                * 404 pg não encontrada
-                * 500 erro interno no servidor */
+                 * 200 OK
+                 * 403 forbideen
+                 * 404 pg não encontrada
+                 * 500 erro interno no servidor */
 
-                if(response_code == HttpURLConnection.HTTP_OK){
+                if (response_code == HttpURLConnection.HTTP_OK) {
+
                     InputStream input = conn.getInputStream();
                     BufferedReader reader = new BufferedReader(new InputStreamReader(input));
-
                     StringBuilder result = new StringBuilder();
+
                     String line;
-                    while ((line = reader.readLine()) != null){
+
+                    while ((line = reader.readLine()) != null) {
+
                         result.append(line);
                     }
-
                     return (result.toString());
-                }else{
+                } else {
                     return "Erro de conexão";
                 }
 
-            }catch (IOException e){
+            } catch (IOException e) {
 
-                Log.e("WEBService", "IOException - "+e.getMessage());
+                Log.e("WEBService", "IOException - " + e.getMessage());
                 return e.toString();
 
-            }finally {
+            } finally {
                 conn.disconnect();
             }
         }
 
         @Override
-        protected void onPostExecute(String result){
+        protected void onPostExecute(String result) {
 
-            try{
+            try {
 
                 JSONArray jArray = new JSONArray(result);
 
-                if(jArray.length() != 0){
+                if (jArray.length() != 0) {
                     // Salvar dados recebidos no BD SQLite
 
                     controller.deletarTabela(MediaEscolarDataModel.getTABELA());
                     controller.criarTabela(MediaEscolarDataModel.criarTabela());
 
-                    for (int i = 0; i< jArray.length(); i++){
+                    for (int i = 0; i < jArray.length(); i++) {
 
                         JSONObject jsonObject = jArray.getJSONObject(i);
                         MediaEscolar obj = new MediaEscolar();
 
                         obj.setId((jsonObject.getInt(MediaEscolarDataModel.getId())));
+                        obj.setIdpk((jsonObject.getInt(MediaEscolarDataModel.getId())));
                         obj.setMateria((jsonObject.getString(MediaEscolarDataModel.getMateria())));
                         obj.setBimestre((jsonObject.getString(MediaEscolarDataModel.getBimestre())));
                         obj.setNotaProva((jsonObject.getDouble(MediaEscolarDataModel.getNotaProva())));
@@ -297,22 +306,25 @@ public class MainActivity extends AppCompatActivity
                         controller.salvar(obj);
 
                     }
-                }else{
+                } else {
                     UtilMediaEscolar.showMensagem(context, "Nenhum registro encontrado...");
                 }
 
-            }catch (Exception e){
+            } catch (Exception e) {
 
-                Log.e("WEBService", "Erro JSONException - "+e.getMessage());
+                Log.e("WEBService", "Erro JSONException - " + e.getMessage());
 
-            }finally {
+            } finally {
 
-                if (progressDiaglog != null && progressDiaglog.isShowing()){
+
+                if (progressDiaglog != null && progressDiaglog.isShowing()) {
                     progressDiaglog.dismiss();
+
                 }
 
             }
         }
 
     }
+
 }

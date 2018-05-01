@@ -17,8 +17,6 @@ import com.topartes.mediaescolar.model.MediaEscolar;
 
 import java.util.ArrayList;
 
-import static com.topartes.mediaescolar.datasource.DataSource.getAllResultadoFinal;
-
 
 public class ResultadoFinalFragment extends Fragment {
 
@@ -62,7 +60,7 @@ public class ResultadoFinalFragment extends Fragment {
 
         listView = view.findViewById(R.id.listview);
 
-        dataSet = getAllResultadoFinal();
+        dataSet = controller.getAllResultadoFinal();
 
         final ResultadoFinalListAdapter adapter =
                 new ResultadoFinalListAdapter(dataSet, getContext());
@@ -81,7 +79,7 @@ public class ResultadoFinalFragment extends Fragment {
                         mediaEscolar.getMediaFinal(), Snackbar.LENGTH_LONG)
                         .setAction("No action", null).show();
 
-                dataSet = getAllResultadoFinal();
+                dataSet = controller.getAllResultadoFinal();
                 adapter.atualizarLista(dataSet);
             }
         });

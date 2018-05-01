@@ -6,8 +6,10 @@ import android.os.Handler;
 import android.speech.tts.TextToSpeech;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.widget.Adapter;
 
 import com.topartes.mediaescolar.R;
+import com.topartes.mediaescolar.adapter.ResultadoFinalListAdapter;
 import com.topartes.mediaescolar.controller.MediaEscolarCtrl;
 import com.topartes.mediaescolar.model.MediaEscolar;
 
@@ -55,7 +57,7 @@ public class SplashActivity
 
                 MediaEscolarCtrl mediaEscolarCtrl = new MediaEscolarCtrl(getBaseContext());
 
-                List<MediaEscolar> objetos = MediaEscolarCtrl.listar();
+                List<MediaEscolar> objetos = mediaEscolarCtrl.listar();
 
                 for (MediaEscolar obj : objetos) {
                     Log.i("CRUD LISTAR", "ID: " + obj.getId() + " - Matéria: " + obj.getMateria());
